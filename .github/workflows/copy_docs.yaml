@@ -3,8 +3,8 @@ name: Generate docs for runhouse-docs
 
 on:
   push:
-    branches:
-      - '*'
+    branches: [ generate-docs-for-release-tags ]
+
 
 jobs:
   generate-docs:
@@ -19,22 +19,32 @@ jobs:
       - name: Install docs requirements
         run: pip install -r docs/requirements.txt
 
-      - name: Build docs
-        run: cd docs && make json
+#      - name: Build docs
+#        run: cd docs && make json
+#
+#      - name: Get current branch name
+#        run: echo "CURRENT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+#
+#      - name: Set target branch name
+#        run: echo "BRANCH_NAME=${CURRENT_BRANCH}" >> $GITHUB_ENV
+#
+#      - name: Push directory to another repository
+#        uses: cpina/github-action-push-to-another-repository@v1.7.2
+#        env:
+#          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+#        with:
+#          source-directory: 'docs/_build/json/'
+#          destination-github-username: 'run-house'
+#          destination-repository-name: 'runhouse-docs'
+#          target-branch: ${{ env.BRANCH_NAME }}
+#          create-target-branch-if-needed: true
 
-      - name: Get current branch name
-        run: echo "CURRENT_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
-      - name: Set target branch name
-        run: echo "BRANCH_NAME=${CURRENT_BRANCH}" >> $GITHUB_ENV
-
-      - name: Push directory to another repository
-        uses: cpina/github-action-push-to-another-repository@v1.7.2
-        env:
-          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          source-directory: 'docs/_build/json/'
-          destination-github-username: 'run-house'
-          destination-repository-name: 'runhouse-docs'
-          target-branch: ${{ env.BRANCH_NAME }}
-          create-target-branch-if-needed: true
+          python-version: 3.9
+
+      - name: Build docs for all release tags
+        run: python runhouse/scripts/generating_docs.py tags
+

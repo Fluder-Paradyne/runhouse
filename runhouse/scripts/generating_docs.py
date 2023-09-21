@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 import subprocess
@@ -144,6 +145,20 @@ def generate_docs_for_tags():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate docs for all branches and release tags.")
+    parser.add_argument("function", nargs="?", default=None,
+                        choices=["branches", "tags"],
+                        help="Build docs for all branches, release tags, or both")
+
+    args = parser.parse_args()
+    func_to_run = args.function
+
     clone_repo()
-    generate_docs_for_branches()
-    generate_docs_for_tags()
+
+    if func_to_run == "branches":
+        generate_docs_for_branches()
+    elif func_to_run == "tags":
+        generate_docs_for_tags()
+    else:
+        generate_docs_for_branches()
+        generate_docs_for_tags()
